@@ -44,7 +44,6 @@ namespace Platformer.Mechanics
             foreach (TokenInstance tokenInstance in tokens) {
                 tokenInstance.OnCollected += OnTokenCollected;
                 
-                tokenInstance.sprites = tokenInstance.TokenConfiguration.idleAnimation;
                 if (tokenInstance.TokenConfiguration.randomAnimationStartTime)
                     tokenInstance.frame = Random.Range(0, tokenInstance.sprites.Length);
             }
@@ -56,8 +55,6 @@ namespace Platformer.Mechanics
         private void OnTokenCollected(TokenInstance token) {
             
             token.frame = 0;
-            token.sprites = token.TokenConfiguration.collectedAnimation;
-
             _collectingTokens.Add(token);
 
             token.OnCollected -= OnTokenCollected;

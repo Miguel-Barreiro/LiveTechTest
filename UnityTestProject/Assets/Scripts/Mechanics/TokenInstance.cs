@@ -26,12 +26,7 @@ namespace Platformer.Mechanics
         internal Sprite[] sprites = new Sprite[0];
 
         internal SpriteRenderer _renderer;
-
-        //unique index which is assigned by the TokenController in a scene.
-        internal int tokenIndex = -1;
         
-        //MIGUEL:
-        // internal TokenController controller;
         //active frame in animation, updated by the controller.
         internal int frame = 0;
 
@@ -47,6 +42,8 @@ namespace Platformer.Mechanics
             customDebug.SetDebugLikes(new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" });
             customDebug.SetDebugNames(new string[] { "Albert", "Robert", "James", "Harry", "David" });
             customDebug.SetAttributes(GameConstants.TokenTypeName, GameConstants.TokenNameDeclaration, GameConstants.TokenLikeDeclaration);
+            
+            sprites = TokenConfiguration.idleAnimation;
         }
 
         void Start()
@@ -65,10 +62,11 @@ namespace Platformer.Mechanics
         {
             if (tokenModel.collected) return;
 
-            OnCollected?.Invoke(this);
-            
             tokenModel.collected = true;
             
+            sprites = TokenConfiguration.collectedAnimation;
+            OnCollected?.Invoke(this);
+
             //send an event into the gameplay system to perform some behaviour.
             var ev = Schedule<PlayerTokenCollision>();
             ev.token = this;
