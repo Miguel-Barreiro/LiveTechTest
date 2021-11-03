@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 using Models;
- 
+using Random = UnityEngine.Random;
+
 namespace Platformer.Mechanics
 {
     /// <summary>
@@ -16,64 +19,75 @@ namespace Platformer.Mechanics
     {
         [Tooltip("Frames per second at which tokens are animated.")]
         public float frameRate = 12;
-        [Tooltip("Instances of tokens which are animated. If empty, token instances are found and loaded at runtime.")]
-        public TokenInstance[] tokens;
+        
+        [Tooltip("Instances of tokens which are animated. If empty, token instances are found and loaded at runtime.")] 
+        [SerializeField]
+        private List<TokenInstance> tokens = new List<TokenInstance>();
+        private readonly List<TokenInstance> _collectingTokens = new List<TokenInstance>();
+        private readonly List<TokenInstance> _collectedTokens = new List<TokenInstance>();
 
-        float nextFrameTime = 0;
 
         [ContextMenu("Find All Tokens")]
         void FindAllTokensInScene()
         {
-            tokens = UnityEngine.Object.FindObjectsOfType<TokenInstance>();
+            tokens.AddRange(UnityEngine.Object.FindObjectsOfType<TokenInstance>());
         }
 
         void Awake()
         {
             //if tokens are empty, find all instances.
             //if tokens are not empty, they've been added at editor time.
-            if (tokens.Length == 0)
+            if (tokens.Count == 0)
                 FindAllTokensInScene();
             
-            
-            //MIGUEL: should be injected instead
             //Register all tokens so they can work with this controller.
-            for (var i = 0; i < tokens.Length; i++)
-            {
-                tokens[i].tokenIndex = i;
-                tokens[i].controller = this;
+            foreach (TokenInstance tokenInstance in tokens) {
+                tokenInstance.OnCollected += OnTokenCollected;
+                
+                if (tokenInstance.TokenConfiguration.randomAnimationStartTime)
+                    tokenInstance.frame = Random.Range(0, tokenInstance.sprites.Length);
             }
-            // StartCoroutine(FlipToken());
+
+            StartCoroutine(UpdateTokenSpritesCoroutine());
         }
 
-        void Update()
-        {
+
+        private void OnTokenCollected(TokenInstance token) {
             
-            //MIGUEL: all controllers are updating all gems
+            token.frame = 0;
+            _collectingTokens.Add(token);
+
+            token.OnCollected -= OnTokenCollected;
+        }
+
+        private IEnumerator UpdateTokenSpritesCoroutine() {
+
+            float framesDeltaTime = 1f / frameRate;
             
-            //if it's time for the next frame...
-            if (Time.time - nextFrameTime > (1f / frameRate))
-            {
+            while (true) {
+                
+                 yield return new WaitForSeconds(framesDeltaTime);
+
                 //update all tokens with the next animation frame.
-                for (var i = 0; i < tokens.Length; i++)
-                {
-                    var token = tokens[i];
-                    //if token is null, it has been disabled and is no longer animated.
-                    if (token != null)
-                    {
-                        token._renderer.sprite = token.sprites[token.frame];
-                        if (token.tokenModel.collected && token.frame == token.sprites.Length - 1)
-                        {
-                            token.gameObject.SetActive(false);
-                            tokens[i] = null;
-                        }
-                        else
-                        {
-                            token.frame = (token.frame + 1) % token.sprites.Length;
-                        }
+                foreach (TokenInstance token in tokens) {
+                    token._renderer.sprite = token.sprites[token.frame];
+                    token.frame = (token.frame + 1) % token.sprites.Length;
+                }
+
+                foreach (TokenInstance token in _collectingTokens) {
+                    if (token.frame == token.sprites.Length - 1){
+                        
+                        //we could destroy it but I let it remain to keep the same functionality
+                        token.gameObject.SetActive(false);
+
+                        _collectedTokens.Add(token);
+                        
+                        //lets remove from the tokens that need to be animated though
+                        tokens.Remove(token);
                     }
                 }
-                //calculate the time of the next frame.
-                nextFrameTime += 1f / frameRate;
+
+                _collectingTokens.RemoveAll(instance => !instance.gameObject.activeSelf);
             }
         }
     }
