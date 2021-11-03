@@ -1,10 +1,12 @@
+using System;
 using Platformer.Gameplay;
 using System.Collections;
 using UnityEngine;
 using static Platformer.Core.Simulation;
 
 using Models;
- 
+using Random = UnityEngine.Random;
+
 namespace Platformer.Mechanics
 {
     /// <summary>
@@ -16,6 +18,10 @@ namespace Platformer.Mechanics
     [RequireComponent(typeof(CustomDebug))]
     public class TokenInstance : MonoBehaviour
     {
+
+        public event Action<TokenInstance> OnCollected;
+        
+        
         public AudioClip tokenCollectAudio;
         [Tooltip("If true, animation will start at a random position in the sequence.")]
         public bool randomAnimationStartTime = false;
@@ -30,7 +36,7 @@ namespace Platformer.Mechanics
         internal int tokenIndex = -1;
         
         //MIGUEL:
-        internal TokenController controller;
+        // internal TokenController controller;
         //active frame in animation, updated by the controller.
         internal int frame = 0;
 
@@ -41,9 +47,6 @@ namespace Platformer.Mechanics
         void Awake()
         {
             _renderer = GetComponent<SpriteRenderer>();
-            if (randomAnimationStartTime)
-                frame = Random.Range(0, sprites.Length);
-            sprites = idleAnimation;
 
             CustomDebug customDebug = GetComponent<CustomDebug>();
             customDebug.SetDebugLikes(new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" });
@@ -65,16 +68,12 @@ namespace Platformer.Mechanics
 
         void OnPlayerEnter(PlayerController player)
         {
-            
-            
-            //Miguel: we should move this to the model/event instead
             if (tokenModel.collected) return;
+
+            OnCollected?.Invoke(this);
             
-            //disable the gameObject and remove it from the controller update list.
-            frame = 0;
-            sprites = collectedAnimation;
-            if (controller != null)
-                tokenModel.collected = true;
+            tokenModel.collected = true;
+            
             //send an event into the gameplay system to perform some behaviour.
             var ev = Schedule<PlayerTokenCollision>();
             ev.token = this;
@@ -84,16 +83,10 @@ namespace Platformer.Mechanics
         // Makes a cool token flip effect on tokens
         IEnumerator flip_token()
         {
-            yield return new WaitForSeconds(Random.Range(GameConstants.TokenMinFlipDelay, GameConstants.TokenMaxFlipDelay));
-            
-            //MIGUEL: we need 1 continuous loop instead of various subcalls
-            Component[] spriteRenderers;
-
-            spriteRenderers = GetComponents(typeof(SpriteRenderer));
-
-            foreach (SpriteRenderer spriteRenderer in spriteRenderers)
-                spriteRenderer.flipY = !spriteRenderer.flipY;
-            StartCoroutine(flip_token());
+            while (true) {
+                yield return new WaitForSeconds(Random.Range(GameConstants.TokenMinFlipDelay, GameConstants.TokenMaxFlipDelay));
+                _renderer.flipY = !_renderer.flipY;
+            }
         }
 
     }
