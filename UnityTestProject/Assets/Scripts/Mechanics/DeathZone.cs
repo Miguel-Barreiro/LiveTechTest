@@ -14,6 +14,7 @@ namespace Platformer.Mechanics
     {
         void OnTriggerEnter2D(Collider2D collider)
         {
+            //MIGUEL: change the name of the var
             var p = collider.gameObject.GetComponent<PlayerController>();
             if (p != null)
             {
