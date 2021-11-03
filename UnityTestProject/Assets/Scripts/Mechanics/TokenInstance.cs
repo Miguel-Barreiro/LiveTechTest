@@ -20,13 +20,8 @@ namespace Platformer.Mechanics
     {
 
         public event Action<TokenInstance> OnCollected;
-        
-        
-        public AudioClip tokenCollectAudio;
-        [Tooltip("If true, animation will start at a random position in the sequence.")]
-        public bool randomAnimationStartTime = false;
-        [Tooltip("List of frames that make up the animation.")]
-        public Sprite[] idleAnimation, collectedAnimation;
+
+        public TokenConfiguration TokenConfiguration;
 
         internal Sprite[] sprites = new Sprite[0];
 
