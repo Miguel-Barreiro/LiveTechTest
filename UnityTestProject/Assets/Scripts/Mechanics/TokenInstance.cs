@@ -13,6 +13,7 @@ namespace Platformer.Mechanics
     /// TokenController in the scene.
     /// </summary>
     [RequireComponent(typeof(Collider2D))]
+    [RequireComponent(typeof(CustomDebug))]
     public class TokenInstance : MonoBehaviour
     {
         public AudioClip tokenCollectAudio;
@@ -43,6 +44,11 @@ namespace Platformer.Mechanics
             if (randomAnimationStartTime)
                 frame = Random.Range(0, sprites.Length);
             sprites = idleAnimation;
+
+            CustomDebug customDebug = GetComponent<CustomDebug>();
+            customDebug.SetDebugLikes(new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" });
+            customDebug.SetDebugNames(new string[] { "Albert", "Robert", "James", "Harry", "David" });
+            customDebug.SetAttributes(GameConstants.TokenTypeName, GameConstants.TokenNameDeclaration, GameConstants.TokenLikeDeclaration);
         }
 
         void Start()
@@ -90,47 +96,5 @@ namespace Platformer.Mechanics
             StartCoroutine(flip_token());
         }
 
-        string name1()
-        {
-            string[] possibleNames = new string[] { "Albert", "Robert", "James", "Harry", "David" };
-            int x = Random.Range(1, 9999);
-
-            string enemyName = possibleNames[Random.Range(0, possibleNames.Length)]+x;
-            return enemyName;
-        }
-
-        string like1()
-        {
-            string[] possibleLikes = new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" };
-
-            string selected = possibleLikes[Random.Range(0, possibleLikes.Length)];
-            return selected;
-        }
-//MIGUEL: extract to another class
-        string makedebug()
-        {
-            string debug;
-
-            debug = "";
-            debug += GameConstants.TokenTypeName;
-            debug += ": ";
-            debug += GameConstants.TokenNameDeclaration;
-            debug += " ";
-            debug += name1();
-            debug += " ";
-            debug += GameConstants.TokenLikeDeclaration;
-            debug += " ";
-            debug += like1();
-            debug += " ";
-
-            return debug;
-        }
-
-        IEnumerator debugit()
-        {
-            yield return new WaitForSeconds(Random.Range(2, 10));
-            Debug.Log(makedebug());
-            StartCoroutine(debugit());
-        }
     }
 }

@@ -14,6 +14,8 @@ namespace Platformer.Mechanics
     /// This is the main class used to implement control of the player.
     /// It is a superset of the AnimationController class, but is inlined to allow for any kind of customisation.
     /// </summary>
+
+    [RequireComponent(typeof(CustomDebug))]
     public class PlayerController : KinematicObject
     {
         public AudioClip jumpAudio;
@@ -37,6 +39,20 @@ namespace Platformer.Mechanics
 
         public Bounds Bounds => collider2d.bounds;
 
+        
+        private void Awake()
+        {
+            CustomDebug customDebug = GetComponent<CustomDebug>();
+            customDebug.SetDebugLikes(new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" });
+            customDebug.SetDebugNames(new string[] { "Albert", "Robert", "James", "Harry", "David" });
+       
+            customDebug.SetAttributes( GameConstants.PlayerTypeName, 
+                                      GameConstants.PlayerNameDeclaration, 
+                                      GameConstants.PlayerLikeDeclaration);
+        }
+
+        
+        
         /*
         ** Properties
         */
@@ -196,49 +212,6 @@ namespace Platformer.Mechanics
             animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / MaxSpeed);
 
             targetVelocity = move * MaxSpeed;
-        }
-//MIGUEL:
-        string name1()
-        {
-            string[] possibleNames = new string[] { "Albert", "Robert", "James", "Harry", "David" };
-            int x = Random.Range(1, 9999);
-
-            string enemyName = possibleNames[Random.Range(0, possibleNames.Length)]+x;
-            return enemyName;
-        }
-
-        string like1()
-        {
-            string[] possibleLikes = new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" };
-
-            string selected = possibleLikes[Random.Range(0, possibleLikes.Length)];
-            return selected;
-        }
-
-        string makedebug()
-        {
-            string debug;
-
-            debug = "";
-            debug += GameConstants.PlayerTypeName;
-            debug += ": ";
-            debug += GameConstants.PlayerNameDeclaration;
-            debug += " ";
-            debug += name1();
-            debug += " ";
-            debug += GameConstants.PlayerLikeDeclaration;
-            debug += " ";
-            debug += like1();
-            debug += " ";
-
-            return debug;
-        }
-
-        IEnumerator debugit()
-        {
-            yield return new WaitForSeconds(Random.Range(2, 10));
-            Debug.Log(makedebug());
-            StartCoroutine(debugit());
         }
 
         public enum JumpState
