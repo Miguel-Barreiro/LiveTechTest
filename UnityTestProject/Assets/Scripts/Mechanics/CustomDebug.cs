@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,10 +14,23 @@ namespace Platformer.Mechanics
         private string _typeName = "NO_TYPE";
         private string _nameDeclaration = "NO_NAME";
         private string _likeDeclaration = "NO_LIKE";
+        
 
-        private void Awake() {
-            StartCoroutine(PrintDebugInfoCoroutine());
+        private Coroutine _printCoroutine;
+        private void OnEnable() {
+#if UNITY_EDITOR
+            _printCoroutine = StartCoroutine(PrintDebugInfoCoroutine());
+#endif
         }
+
+        private void OnDisable() {
+#if UNITY_EDITOR
+            if (_printCoroutine != null) {
+                StopCoroutine(_printCoroutine);
+            }
+#endif
+        }
+
 
         public void SetAttributes(string typeName, string  nameDeclaration, string likeDeclaration) {
             _typeName = typeName;
@@ -53,7 +67,6 @@ namespace Platformer.Mechanics
             return selected;
         }
 
-        //MIGUEL:
         private string MakeDebug() {
             return $"{_typeName}: {_nameDeclaration} {Name1()}  {_likeDeclaration} {Like1()} ";
         }

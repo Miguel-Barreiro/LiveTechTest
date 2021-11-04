@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Platformer.Core;
+﻿using Platformer.Core;
 using Platformer.Model;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Platformer.Mechanics
 {
@@ -46,8 +43,9 @@ namespace Platformer.Mechanics
         public static readonly int GROUNDED_PARAMETER = Animator.StringToHash("grounded");
         public static readonly int VELOCITY_X_PARAMETER = Animator.StringToHash("velocityX");
 
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _animator = GetComponent<Animator>();
         }
@@ -73,11 +71,13 @@ namespace Platformer.Mechanics
             else if (move.x < -0.01f)
                 _spriteRenderer.flipX = true;
 
-            //MIGUEL:
             _animator.SetBool(GROUNDED_PARAMETER, IsGrounded);
             _animator.SetFloat(VELOCITY_X_PARAMETER, Mathf.Abs(velocity.x) / maxSpeed);
                       
             targetVelocity = move * maxSpeed;
         }
+        
+        
+        
     }
 }

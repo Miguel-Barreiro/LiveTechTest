@@ -13,10 +13,12 @@ namespace Platformer.View
         /// </summary>
         public Vector3 movementScale = Vector3.one;
 
+        [SerializeField]
+        private Camera MainCamera;
+        
         void LateUpdate()
         {
-            //MIGUEL:
-            transform.position = Vector3.Scale(Camera.main.transform.position, movementScale);
+            transform.position = Vector3.Scale(MainCamera.transform.position, movementScale);
         }
 
     }

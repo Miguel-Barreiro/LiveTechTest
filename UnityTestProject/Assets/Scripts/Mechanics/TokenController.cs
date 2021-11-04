@@ -43,9 +43,6 @@ namespace Platformer.Mechanics
             //Register all tokens so they can work with this controller.
             foreach (TokenInstance tokenInstance in tokens) {
                 tokenInstance.OnCollected += OnTokenCollected;
-                
-                if (tokenInstance.TokenConfiguration.randomAnimationStartTime)
-                    tokenInstance.frame = Random.Range(0, tokenInstance.sprites.Length);
             }
 
             StartCoroutine(UpdateTokenSpritesCoroutine());
@@ -53,10 +50,7 @@ namespace Platformer.Mechanics
 
 
         private void OnTokenCollected(TokenInstance token) {
-            
-            token.frame = 0;
             _collectingTokens.Add(token);
-
             token.OnCollected -= OnTokenCollected;
         }
 
@@ -70,7 +64,7 @@ namespace Platformer.Mechanics
 
                 //update all tokens with the next animation frame.
                 foreach (TokenInstance token in tokens) {
-                    token._renderer.sprite = token.sprites[token.frame];
+                    token.Renderer.sprite = token.sprites[token.frame];
                     token.frame = (token.frame + 1) % token.sprites.Length;
                 }
 
