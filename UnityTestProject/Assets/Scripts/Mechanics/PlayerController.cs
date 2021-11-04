@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 using Platformer.Gameplay;
 using static Platformer.Core.Simulation;
@@ -37,16 +35,17 @@ namespace Platformer.Mechanics
         Vector2 move;
         
         
-        
         SpriteRenderer spriteRenderer;
         internal Animator animator;
         readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         public Bounds Bounds => collider2d.bounds;
 
-        
-        private void Awake()
+
+        protected override void Awake()
         {
+            base.Awake();
+            
             CustomDebug customDebug = GetComponent<CustomDebug>();
             customDebug.SetDebugLikes(new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" });
             customDebug.SetDebugNames(new string[] { "Albert", "Robert", "James", "Harry", "David" });

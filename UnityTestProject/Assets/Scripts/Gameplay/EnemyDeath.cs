@@ -13,7 +13,9 @@ namespace Platformer.Gameplay
 
         public override void Execute()
         {
-            enemy.Disable();
+            enemy._collider.enabled = false;
+            enemy.control.enabled = false;
+
             enemy.EmitDieSound();
         }
     }

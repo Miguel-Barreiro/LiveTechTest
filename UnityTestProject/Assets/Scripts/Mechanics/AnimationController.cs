@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Platformer.Core;
+﻿using Platformer.Core;
 using Platformer.Model;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Platformer.Mechanics
 {
@@ -48,6 +45,7 @@ namespace Platformer.Mechanics
 
         protected virtual void Awake()
         {
+            base.Awake();
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _animator = GetComponent<Animator>();
         }

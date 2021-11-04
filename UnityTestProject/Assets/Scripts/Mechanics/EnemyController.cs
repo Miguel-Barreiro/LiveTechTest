@@ -60,10 +60,6 @@ namespace Platformer.Mechanics
             }
         }
 
-        public void Disable() {
-            _collider.enabled = false;
-            control.enabled = false;
-        }
 
         public void EmitDieSound() {
             if (_audio && ouch)
