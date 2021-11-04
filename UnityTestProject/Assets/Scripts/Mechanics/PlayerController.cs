@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Platformer.Gameplay;
@@ -31,8 +32,12 @@ namespace Platformer.Mechanics
 
         public PlayerModel playerModel = new PlayerModel();
 
+        
         bool jump;
         Vector2 move;
+        
+        
+        
         SpriteRenderer spriteRenderer;
         internal Animator animator;
         readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
@@ -49,10 +54,24 @@ namespace Platformer.Mechanics
             customDebug.SetAttributes( GameConstants.PlayerTypeName, 
                                       GameConstants.PlayerNameDeclaration, 
                                       GameConstants.PlayerLikeDeclaration);
+            
+            
+            health = GetComponent<Health>();
+            audioSource = GetComponent<AudioSource>();
+            collider2d = GetComponent<Collider2D>();
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            animator = GetComponent<Animator>();
+            
+            health.OnZeroHealth +=OnZeroHealth;
         }
 
-        
-        
+        private void OnDestroy() {
+            health.OnZeroHealth -=OnZeroHealth;
+        }
+
+
+
+
         /*
         ** Properties
         */
@@ -69,16 +88,18 @@ namespace Platformer.Mechanics
               playerModel.jumpTakeOffSpeed = value;
             }
         }
+        
+        
+        
+        
+        private void OnZeroHealth() {
+            var ev = Schedule<HealthIsZero>();
+            ev.health = health;
+        }
+        
 
         protected override void Update()
         {
-            //MIGUEL:
-            health = GetComponent<Health>();
-            audioSource = GetComponent<AudioSource>();
-            collider2d = GetComponent<Collider2D>();
-            spriteRenderer = GetComponent<SpriteRenderer>();
-            animator = GetComponent<Animator>();
-
             if (controlEnabled)
             {
                 //MIGUEL:
@@ -116,7 +137,13 @@ namespace Platformer.Mechanics
                 move.x = 0;
             }
 
-            // this is where we handle jumps
+            UpdateJump();
+
+            base.Update();
+        }
+
+        private void UpdateJump()
+        {
             jump = false;
             switch (jumpState)
             {
@@ -144,41 +171,7 @@ namespace Platformer.Mechanics
                     jumpState = JumpState.Grounded;
                     break;
             }
-
-            base.Update();
         }
-//MIGUEL:
-        // OLD JUMP CODE
-        // void functionJump()
-        // {
-        //     jump = false;
-        //     switch (jumpState)
-        //     {
-        //         case JumpState.PrepareToJump:
-        //             jumpState = JumpState.Jumping;
-        //             jump = true;
-        //             stopJump = false;
-        //             StartCoroutine(debugjump(jumpState));
-        //             break;
-        //         case JumpState.Jumping:
-        //             if (!IsGrounded)
-        //             {
-        //                 Schedule<PlayerJumped>().player = this;
-        //                 jumpState = JumpState.InFlight;
-        //             }
-        //             break;
-        //         case JumpState.InFlight:
-        //             if (IsGrounded)
-        //             {
-        //                 Schedule<PlayerLanded>().player = this;
-        //                 jumpState = JumpState.Landed;
-        //             }
-        //             break;
-        //         case JumpState.Landed:
-        //             jumpState = JumpState.Grounded;
-        //             break;
-        //     }
-        // }
 
         IEnumerator debugjump(JumpState jumpState)
         {

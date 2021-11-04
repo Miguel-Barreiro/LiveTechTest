@@ -22,21 +22,18 @@ namespace Platformer.Mechanics
         public event Action<TokenInstance> OnCollected;
 
         public TokenConfiguration TokenConfiguration;
-
-        internal Sprite[] sprites = new Sprite[0];
-
-        internal SpriteRenderer _renderer;
+        internal Sprite[] sprites = null;
+        internal SpriteRenderer Renderer;
         
         //active frame in animation, updated by the controller.
         internal int frame = 0;
 
-        //MIGUEL: model should be injected
         // Token model
         internal TokenModel tokenModel = new TokenModel();
 
         void Awake()
         {
-            _renderer = GetComponent<SpriteRenderer>();
+            Renderer = GetComponent<SpriteRenderer>();
 
             CustomDebug customDebug = GetComponent<CustomDebug>();
             customDebug.SetDebugLikes(new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" });
@@ -44,6 +41,10 @@ namespace Platformer.Mechanics
             customDebug.SetAttributes(GameConstants.TokenTypeName, GameConstants.TokenNameDeclaration, GameConstants.TokenLikeDeclaration);
             
             sprites = TokenConfiguration.idleAnimation;
+            
+            if (TokenConfiguration.randomAnimationStartTime)
+                frame = Random.Range(0, sprites.Length);
+
         }
 
         void Start()
@@ -63,7 +64,8 @@ namespace Platformer.Mechanics
             if (tokenModel.collected) return;
 
             tokenModel.collected = true;
-            
+
+            frame = 0;
             sprites = TokenConfiguration.collectedAnimation;
             OnCollected?.Invoke(this);
 
@@ -78,7 +80,7 @@ namespace Platformer.Mechanics
         {
             while (true) {
                 yield return new WaitForSeconds(Random.Range(GameConstants.TokenMinFlipDelay, GameConstants.TokenMaxFlipDelay));
-                _renderer.flipY = !_renderer.flipY;
+                Renderer.flipY = !Renderer.flipY;
             }
         }
 

@@ -59,5 +59,16 @@ namespace Platformer.Mechanics
                 control.move.x = Mathf.Clamp(newPosition, -1, 1);
             }
         }
+
+        public void Disable() {
+            _collider.enabled = false;
+            control.enabled = false;
+        }
+
+        public void EmitDieSound() {
+            if (_audio && ouch)
+                _audio.PlayOneShot(ouch);
+
+        }
     }
 }

@@ -13,11 +13,8 @@ namespace Platformer.Gameplay
 
         public override void Execute()
         {
-            //Miguel: make this a function on its own not access a private function
-            enemy._collider.enabled = false;
-            enemy.control.enabled = false;
-            if (enemy._audio && enemy.ouch)
-                enemy._audio.PlayOneShot(enemy.ouch);
+            enemy.Disable();
+            enemy.EmitDieSound();
         }
     }
 }

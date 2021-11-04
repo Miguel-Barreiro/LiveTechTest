@@ -73,11 +73,13 @@ namespace Platformer.Mechanics
             else if (move.x < -0.01f)
                 _spriteRenderer.flipX = true;
 
-            //MIGUEL:
             _animator.SetBool(GROUNDED_PARAMETER, IsGrounded);
             _animator.SetFloat(VELOCITY_X_PARAMETER, Mathf.Abs(velocity.x) / maxSpeed);
                       
             targetVelocity = move * maxSpeed;
         }
+        
+        
+        
     }
 }

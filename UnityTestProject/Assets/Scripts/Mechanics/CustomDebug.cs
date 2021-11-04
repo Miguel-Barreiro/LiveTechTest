@@ -53,7 +53,6 @@ namespace Platformer.Mechanics
             return selected;
         }
 
-        //MIGUEL:
         private string MakeDebug() {
             return $"{_typeName}: {_nameDeclaration} {Name1()}  {_likeDeclaration} {Like1()} ";
         }
