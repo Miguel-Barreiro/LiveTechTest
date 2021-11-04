@@ -18,13 +18,13 @@ namespace Platformer.Mechanics
     [RequireComponent(typeof(CustomDebug))]
     [RequireComponent(typeof(AnimationController))]
     public class PlayerController : MonoBehaviour
-    {
-        
+    {        
     
         public static int DEAD_ANIMATOR_BOOL_PARAMETER = Animator.StringToHash("dead");
         public static int VICTORY_ANIMATOR_TRIGGER_PARAMETER = Animator.StringToHash("victory");
         public static int HURT_ANIMATOR_TRIGGER_PARAMETER = Animator.StringToHash("hurt");
 
+        public PlayerModel PlayerModel = Simulation.GetModel<PlayerModel>();
         
         public AudioClip jumpAudio;
         public AudioClip respawnAudio;
@@ -42,7 +42,6 @@ namespace Platformer.Mechanics
         public SpriteRenderer spriteRenderer;
         public Animator Animator;
         public readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
-        public readonly PlayerModel playerModel = Simulation.GetModel<PlayerModel>();
 
         public Bounds Bounds => collider2d.bounds;
 
@@ -68,28 +67,27 @@ namespace Platformer.Mechanics
             Health.OnZeroHealth +=OnZeroHealth;
         }
 
+        
         private void OnDestroy() {
             Health.OnZeroHealth -=OnZeroHealth;
         }
-
-
 
 
         /*
         ** Properties
         */
         public float MaxSpeed {
-            get { return playerModel.maxSpeed; }
+            get { return PlayerModel.maxSpeed; }
             set {
-              playerModel.maxSpeed = value;
+              PlayerModel.maxSpeed = value;
               Control.maxSpeed = value;
             }
         }
 
         public float JumpTakeOffSpeed {
-            get { return playerModel.jumpTakeOffSpeed; }
+            get { return PlayerModel.jumpTakeOffSpeed; }
             set {
-              playerModel.jumpTakeOffSpeed = value;
+              PlayerModel.jumpTakeOffSpeed = value;
               Control.jumpTakeOffSpeed = value;
             }
         }
@@ -99,7 +97,7 @@ namespace Platformer.Mechanics
             var ev = Schedule<HealthIsZero>();
             ev.health = Health;
         }
-        
+
 
         protected void Update()
         {
