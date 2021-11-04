@@ -44,7 +44,6 @@ public class EmitParticlesOnLand : MonoBehaviour
         if (emitOnEnemyDeath) {
             Platformer.Gameplay.EnemyDeath.OnExecute -= OnExecuteEnemyDeath;
         }
-        
     }
 
 #endif

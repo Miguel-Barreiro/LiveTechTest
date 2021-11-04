@@ -18,8 +18,8 @@ namespace Platformer.Gameplay
         public override void Execute()
         {
             
-            model.player.Animator.SetTrigger(PlayerController.VICTORY_ANIMATOR_TRIGGER_PARAMETER);
-            model.player.ControlEnabled = false;
+            GameController.Instance.Player.Animator.SetTrigger(PlayerController.VICTORY_ANIMATOR_TRIGGER_PARAMETER);
+            GameController.Instance.Player.ControlEnabled = false;
         }
     }
 }

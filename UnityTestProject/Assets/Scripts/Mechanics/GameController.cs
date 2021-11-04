@@ -2,6 +2,7 @@ using Platformer.Core;
 using Platformer.Model;
 using UnityEngine;
 using System.Collections.Generic;
+using Platformer.Gameplay;
 
 namespace Platformer.Mechanics
 {
@@ -11,11 +12,29 @@ namespace Platformer.Mechanics
     /// </summary> 
     public class GameController : MonoBehaviour
     {
-        //MIGUEL:
         static List<float> _tickTimes = new List<float>();
 
         public static GameController Instance { get; private set; }
 
+        
+        /// <summary>
+        /// The virtual camera in the scene.
+        /// </summary>
+        public Cinemachine.CinemachineVirtualCamera VirtualCamera;
+
+        /// <summary>
+        /// The main component which controls the player sprite, controlled 
+        /// by the user.
+        /// </summary>
+        public PlayerController Player;
+        
+
+        /// <summary>
+        /// The spawn point in the scene.
+        /// </summary>
+        public Transform spawnPoint;
+        
+        
         //This model field is public and can be therefore be modified in the 
         //inspector.
         //The reference actually comes from the InstanceRegister, and is shared
