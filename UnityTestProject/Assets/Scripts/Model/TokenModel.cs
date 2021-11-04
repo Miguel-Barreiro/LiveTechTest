@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Models
@@ -5,7 +6,18 @@ namespace Models
     [System.Serializable]
     public class TokenModel
     {
-        //MIGUEL: this shouldnt be a model for each Token rather a model for all tokens
-        public bool collected = false;
+
+        private readonly Dictionary<Vector2, bool> _tokensCollected = new Dictionary<Vector2, bool>();
+
+        public bool Collected(Vector2 tokenPosition) {
+            if (!_tokensCollected.ContainsKey(tokenPosition)) {
+                _tokensCollected.Add(tokenPosition, false);
+            }
+            return _tokensCollected[tokenPosition];
+        }
+
+        public void SetCollected(Vector2 tokenPosition, bool collected) {
+            _tokensCollected[tokenPosition] = collected;
+        }
     }
 }

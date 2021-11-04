@@ -18,9 +18,8 @@ namespace Platformer.Gameplay
         public override void Execute()
         {
             
-            //MIGUEL: we need these "strings" to be somewhere central like the playerView
-            model.player.animator.SetTrigger("victory");
-            model.player.controlEnabled = false;
+            model.player.Animator.SetTrigger(PlayerController.VICTORY_ANIMATOR_TRIGGER_PARAMETER);
+            model.player.ControlEnabled = false;
         }
     }
 }

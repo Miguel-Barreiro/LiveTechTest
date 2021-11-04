@@ -5,6 +5,7 @@ using UnityEngine;
 using static Platformer.Core.Simulation;
 
 using Models;
+using Platformer.Core;
 using Random = UnityEngine.Random;
 
 namespace Platformer.Mechanics
@@ -29,7 +30,7 @@ namespace Platformer.Mechanics
         internal int frame = 0;
 
         // Token model
-        internal TokenModel tokenModel = new TokenModel();
+        internal readonly TokenModel TokenModel = Simulation.GetModel<TokenModel>();
 
         void Awake()
         {
@@ -61,9 +62,9 @@ namespace Platformer.Mechanics
 
         void OnPlayerEnter(PlayerController player)
         {
-            if (tokenModel.collected) return;
-
-            tokenModel.collected = true;
+            if (TokenModel.Collected(transform.position)) return;
+ 
+            TokenModel.SetCollected(transform.position,true);
 
             frame = 0;
             sprites = TokenConfiguration.collectedAnimation;

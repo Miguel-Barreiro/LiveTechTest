@@ -1,6 +1,7 @@
 using Platformer.Core;
 using Platformer.Mechanics;
 using Platformer.Model;
+using UnityEngine;
 
 namespace Platformer.Gameplay
 {
@@ -16,17 +17,16 @@ namespace Platformer.Gameplay
             var player = model.player;
 
             player.collider2d.enabled = true;
-            player.controlEnabled = false;
+            player.ControlEnabled = false;
             
             if (player.audioSource && player.respawnAudio)
                 player.audioSource.PlayOneShot(player.respawnAudio);
             
-            player.health.Increment();
-            player.Teleport(model.spawnPoint.transform.position);
+            player.Health.Increment();
+            player.Control.Teleport(model.spawnPoint.transform.position);
             player.jumpState = PlayerController.JumpState.Grounded;
 
-            //MIGUEL:
-            player.animator.SetBool("dead", false);
+            player.Animator.SetBool(PlayerController.DEAD_ANIMATOR_BOOL_PARAMETER, false);
             
             model.virtualCamera.m_Follow = player.transform;
             model.virtualCamera.m_LookAt = player.transform;

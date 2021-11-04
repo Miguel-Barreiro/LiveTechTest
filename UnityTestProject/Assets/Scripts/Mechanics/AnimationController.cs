@@ -43,7 +43,7 @@ namespace Platformer.Mechanics
         public static readonly int GROUNDED_PARAMETER = Animator.StringToHash("grounded");
         public static readonly int VELOCITY_X_PARAMETER = Animator.StringToHash("velocityX");
 
-        protected virtual void Awake()
+        protected override void Awake()
         {
             base.Awake();
             _spriteRenderer = GetComponent<SpriteRenderer>();
