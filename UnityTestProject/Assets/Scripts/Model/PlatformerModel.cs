@@ -12,23 +12,6 @@ namespace Platformer.Model
     public class PlatformerModel
     {
         
-        //Miguel: this contains connections to real views 
-        
-        /// <summary>
-        /// The virtual camera in the scene.
-        /// </summary>
-        public Cinemachine.CinemachineVirtualCamera virtualCamera;
-
-        /// <summary>
-        /// The main component which controls the player sprite, controlled 
-        /// by the user.
-        /// </summary>
-        public PlayerController player;
-
-        /// <summary>
-        /// The spawn point in the scene.
-        /// </summary>
-        public Transform spawnPoint;
 
         /// <summary>
         /// A global jump modifier applied to all initial jump velocities.

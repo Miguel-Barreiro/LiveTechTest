@@ -1,4 +1,5 @@
 using Platformer.Core;
+using Platformer.Mechanics;
 using Platformer.Model;
 
 namespace Platformer.Gameplay
@@ -8,13 +9,12 @@ namespace Platformer.Gameplay
     /// </summary>
     public class EnablePlayerInput : Simulation.Event<EnablePlayerInput>
     {
-        //Miguel: injected
         PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         public override void Execute()
         {
-            var player = model.player;
-            player.controlEnabled = true;
+            var player = GameController.Instance.Player;
+            player.ControlEnabled = true;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -70,9 +71,12 @@ namespace Platformer.Mechanics
             body.velocity *= 0;
         }
 
+        protected virtual void Awake() {
+            body = GetComponent<Rigidbody2D>();
+        }
+
         protected virtual void OnEnable()
         {
-            body = GetComponent<Rigidbody2D>();
             body.isKinematic = true;
         }
 
@@ -87,6 +91,8 @@ namespace Platformer.Mechanics
             contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
             contactFilter.useLayerMask = true;
         }
+
+
 
         protected virtual void Update()
         {

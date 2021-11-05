@@ -1,7 +1,6 @@
 using System;
-using Platformer.Gameplay;
 using UnityEngine;
-using static Platformer.Core.Simulation;
+using UnityEngine.Serialization;
 
 namespace Platformer.Mechanics
 {
@@ -10,37 +9,55 @@ namespace Platformer.Mechanics
     /// </summary>
     public class Health : MonoBehaviour
     {
+
+        public event Action OnZeroHealth;
+        public event Action<int, int> OnHealthChanges;
+        
         /// <summary>
         /// The maximum hit points for the entity.
         /// </summary>
-        public int maxHP = 1;
+        public int MaxHp = 1;
 
         /// <summary>
         /// Indicates if the entity should be considered 'alive'.
         /// </summary>
-        public bool IsAlive => currentHP > 0;
+        public bool IsAlive => _currentHp > 0;
 
-        int currentHP;
+        /// <summary>
+        /// from 0 to 1 indicates the percentage of health
+        /// </summary>
+        /// <returns></returns>
+        public float GetHealthPercentage() => _currentHp / (float)MaxHp;
 
+        
+        int _currentHp;
+
+        
         /// <summary>
         /// Increment the HP of the entity.
         /// </summary>
-        public void Increment()
-        {
-            currentHP = Mathf.Clamp(currentHP + 1, 0, maxHP);
+        public void Increment() {
+            int previousHp = _currentHp;
+            _currentHp = Mathf.Clamp(_currentHp + 1, 0, MaxHp);
+            if (previousHp != _currentHp) {
+                OnHealthChanges?.Invoke(_currentHp, MaxHp);
+            }
         }
 
         /// <summary>
-        /// Decrement the HP of the entity. Will trigger a HealthIsZero event when
+        /// Decrement the HP of the entity. Will trigger a OnZeroHealth event when
         /// current HP reaches 0.
         /// </summary>
-        public void Decrement()
-        {
-            currentHP = Mathf.Clamp(currentHP - 1, 0, maxHP);
-            if (currentHP == 0)
-            {
-                var ev = Schedule<HealthIsZero>();
-                ev.health = this;
+        public void Decrement() {
+
+            int previousHp = _currentHp;
+            _currentHp = Mathf.Clamp(_currentHp - 1, 0, MaxHp);
+            if (_currentHp == 0) {
+                OnZeroHealth?.Invoke();
+            } else {
+                if (previousHp != _currentHp) {
+                    OnHealthChanges?.Invoke(_currentHp, MaxHp);
+                }
             }
         }
 
@@ -49,12 +66,23 @@ namespace Platformer.Mechanics
         /// </summary>
         public void Die()
         {
-            while (currentHP > 0) Decrement();
+            while (_currentHp > 0) Decrement();
+        }
+        
+        /// <summary>
+        /// sets current health to the maximum
+        /// </summary>
+        public void ResetToMax() {
+            if (_currentHp != MaxHp) {
+                _currentHp = MaxHp;
+                OnHealthChanges?.Invoke(_currentHp, MaxHp);
+            }
         }
 
         void Awake()
         {
-            currentHP = maxHP;
+            _currentHp = MaxHp;
         }
+
     }
 }

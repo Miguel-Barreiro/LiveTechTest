@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Platformer.Core;
+using Platformer.Mechanics;
 using Platformer.Model;
 using UnityEngine;
 
@@ -12,36 +13,29 @@ namespace Platformer.Gameplay
     /// <typeparam name="PlayerDeath"></typeparam>
     public class PlayerDeath : Simulation.Event<PlayerDeath>
     {
-        //Miguel: injected
-        PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        private PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         public override void Execute()
         {
-            //Miguel: this is gonna be called twice when the player dies.
             
-            var player = model.player;
-            if (player.health.IsAlive)
+            var player = GameController.Instance.Player;
+            if (player.Health.IsAlive)
             {
-                
-                player.health.Die();
-                
-                //Miguel: we need 
-                
-                model.virtualCamera.m_Follow = null;
-                model.virtualCamera.m_LookAt = null;
-                // player.collider.enabled = false;
-                player.controlEnabled = false;
-
-                if (player.audioSource && player.ouchAudio)
-                    player.audioSource.PlayOneShot(player.ouchAudio);
-                
-                
-                //Miguel: this could be in the controller
-                
-                player.animator.SetTrigger("hurt");
-                player.animator.SetBool("dead", true);
-                Simulation.Schedule<PlayerSpawn>(2);
+                player.Health.Die();
             }
+            
+            GameController.Instance.VirtualCamera.m_Follow = null;
+            GameController.Instance.VirtualCamera.m_LookAt = null;
+            
+            // player.collider2d.enabled = false;
+            player.ControlEnabled = false;
+
+            if (player.audioSource && player.ouchAudio)
+                player.audioSource.PlayOneShot(player.ouchAudio);
+
+            player.Animator.SetTrigger(PlayerController.HURT_ANIMATOR_TRIGGER_PARAMETER);
+            player.Animator.SetBool(PlayerController.DEAD_ANIMATOR_BOOL_PARAMETER, true);
+            Simulation.Schedule<PlayerSpawn>(2);
         }
     }
 }

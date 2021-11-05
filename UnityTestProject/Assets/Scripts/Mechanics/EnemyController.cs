@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using Platformer.Gameplay;
 using UnityEngine;
@@ -10,6 +10,7 @@ namespace Platformer.Mechanics
     /// A simple controller for enemies. Provides movement control over a patrol path.
     /// </summary>
     [RequireComponent(typeof(AnimationController), typeof(Collider2D))]
+    [RequireComponent(typeof(CustomDebug))]
     public class EnemyController : MonoBehaviour
     {
         public PatrolPath path;
@@ -25,13 +26,17 @@ namespace Platformer.Mechanics
 
         static List<float> _newPositions = new List<float>();
 
-        void Awake()
+        private void Awake()
         {
             control = GetComponent<AnimationController>();
             _collider = GetComponent<Collider2D>();
             _audio = GetComponent<AudioSource>();
             spriteRenderer = GetComponent<SpriteRenderer>();
-            StartCoroutine(debugit());
+
+            CustomDebug customDebug = GetComponent<CustomDebug>();
+            customDebug.SetDebugLikes(new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" });
+            customDebug.SetDebugNames(new string[] { "Albert", "Robert", "James", "Harry", "David" });
+            customDebug.SetAttributes(GameConstants.EnemyTypeName, GameConstants.EnemyNameDeclaration, GameConstants.EnemyLikeDeclaration);
         }
 
         void OnCollisionEnter2D(Collision2D collision)
@@ -45,50 +50,6 @@ namespace Platformer.Mechanics
             }
         }
 
-        //MIGUEL:
-        string name1()
-        {
-            string[] possibleNames = new string[] { "Albert", "Robert", "James", "Harry", "David" };
-            int x = Random.Range(1, 9999);
-
-            string enemyName = possibleNames[Random.Range(0, possibleNames.Length)]+x;
-            return enemyName;
-        }
-
-        string like1()
-        {
-            string[] possibleLikes = new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" };
-
-            string selected = possibleLikes[Random.Range(0, possibleLikes.Length)];
-            return selected;
-        }
-
-        string makedebug()
-        {
-            string debug;
-
-            debug = "";
-            debug += GameConstants.EnemyTypeName;
-            debug += ": ";
-            debug += GameConstants.EnemyNameDeclaration;
-            debug += " ";
-            debug += name1();
-            debug += " ";
-            debug += GameConstants.EnemyLikeDeclaration;
-            debug += " ";
-            debug += like1();
-            debug += " ";
-
-            return debug;
-        }
-
-        IEnumerator debugit()
-        {
-            yield return new WaitForSeconds(Random.Range(2, 10));
-            Debug.Log(makedebug());
-            StartCoroutine(debugit());
-        }
-
         void Update()
         {
             if (path != null)
@@ -97,6 +58,13 @@ namespace Platformer.Mechanics
                 float newPosition = mover.Position.x - transform.position.x;
                 control.move.x = Mathf.Clamp(newPosition, -1, 1);
             }
+        }
+
+
+        public void EmitDieSound() {
+            if (_audio && ouch)
+                _audio.PlayOneShot(ouch);
+
         }
     }
 }

@@ -1,7 +1,6 @@
 using Platformer.Core;
 using Platformer.Mechanics;
 using Platformer.Model;
-using UnityEngine;
 using static Platformer.Core.Simulation;
 
 namespace Platformer.Gameplay
@@ -20,33 +19,35 @@ namespace Platformer.Gameplay
 
         public override void Execute()
         {
-            var willHurtEnemy = player.Bounds.center.y >= enemy.Bounds.max.y;
+            if (player.Health.IsAlive) {
+                var willHurtEnemy = player.Bounds.center.y >= enemy.Bounds.max.y;
 
-            if (willHurtEnemy)
-            {
-                var enemyHealth = enemy.GetComponent<Health>();
-                if (enemyHealth != null)
+                if (willHurtEnemy)
                 {
-                    enemyHealth.Decrement();
-                    if (!enemyHealth.IsAlive)
+                    var enemyHealth = enemy.GetComponent<Health>();
+                    if (enemyHealth != null)
                     {
-                        Schedule<EnemyDeath>().enemy = enemy;
-                        player.Bounce(2);
+                        enemyHealth.Decrement();
+                        if (!enemyHealth.IsAlive)
+                        {
+                            Schedule<EnemyDeath>().enemy = enemy;
+                            player.Control.Bounce(2);
+                        }
+                        else
+                        {
+                            player.Control.Bounce(7);
+                        }
                     }
                     else
                     {
-                        player.Bounce(7);
+                        Schedule<EnemyDeath>().enemy = enemy;
+                        player.Control.Bounce(2);
                     }
                 }
-                else
-                {
-                    Schedule<EnemyDeath>().enemy = enemy;
-                    player.Bounce(2);
+                else {
+                    var ev = Schedule<PlayerDamage>();
+                    ev.player = player;
                 }
-            }
-            else
-            {
-                Schedule<PlayerDeath>();
             }
         }
     }

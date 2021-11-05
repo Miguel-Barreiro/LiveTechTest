@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Platformer.Gameplay;
 using static Platformer.Core.Simulation;
@@ -7,6 +6,7 @@ using Platformer.Model;
 using Platformer.Core;
 
 using Models;
+using UnityEngine.Serialization;
 
 namespace Platformer.Mechanics
 {
@@ -14,56 +14,94 @@ namespace Platformer.Mechanics
     /// This is the main class used to implement control of the player.
     /// It is a superset of the AnimationController class, but is inlined to allow for any kind of customisation.
     /// </summary>
-    public class PlayerController : KinematicObject
-    {
+
+    [RequireComponent(typeof(CustomDebug))]
+    [RequireComponent(typeof(AnimationController))]
+    public class PlayerController : MonoBehaviour
+    {        
+    
+        public static int DEAD_ANIMATOR_BOOL_PARAMETER = Animator.StringToHash("dead");
+        public static int VICTORY_ANIMATOR_TRIGGER_PARAMETER = Animator.StringToHash("victory");
+        public static int HURT_ANIMATOR_TRIGGER_PARAMETER = Animator.StringToHash("hurt");
+
+        public PlayerModel PlayerModel = Simulation.GetModel<PlayerModel>();
+        
         public AudioClip jumpAudio;
         public AudioClip respawnAudio;
         public AudioClip ouchAudio;
 
-        public JumpState jumpState = JumpState.Grounded;
-        private bool stopJump;
+        internal  JumpState jumpState = JumpState.Grounded;
+        
         /*internal new*/ public Collider2D collider2d;
         /*internal new*/ public AudioSource audioSource;
-        public Health health;
-        public bool controlEnabled = true;
-
-        public PlayerModel playerModel = new PlayerModel();
-
-        bool jump;
-        Vector2 move;
-        SpriteRenderer spriteRenderer;
-        internal Animator animator;
-        readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        internal Health Health;
+        internal bool ControlEnabled = true;
+        
+        
+        public AnimationController Control;
+        public SpriteRenderer spriteRenderer;
+        public Animator Animator;
+        public readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         public Bounds Bounds => collider2d.bounds;
+
+        protected  void Awake() {
+
+            
+            CustomDebug customDebug = GetComponent<CustomDebug>();
+            customDebug.SetDebugLikes(new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" });
+            customDebug.SetDebugNames(new string[] { "Albert", "Robert", "James", "Harry", "David" });
+       
+            customDebug.SetAttributes( GameConstants.PlayerTypeName, 
+                                      GameConstants.PlayerNameDeclaration, 
+                                      GameConstants.PlayerLikeDeclaration);
+            
+            
+            Control = GetComponent<AnimationController>();
+            Health = GetComponent<Health>();
+            audioSource = GetComponent<AudioSource>();
+            collider2d = GetComponent<Collider2D>();
+            spriteRenderer = GetComponent<SpriteRenderer>();
+            Animator = GetComponent<Animator>();
+            
+            Health.OnZeroHealth +=OnZeroHealth;
+        }
+
+        
+        private void OnDestroy() {
+            Health.OnZeroHealth -=OnZeroHealth;
+        }
+
 
         /*
         ** Properties
         */
         public float MaxSpeed {
-            get { return playerModel.maxSpeed; }
+            get { return PlayerModel.maxSpeed; }
             set {
-              playerModel.maxSpeed = value;
+              PlayerModel.maxSpeed = value;
+              Control.maxSpeed = value;
             }
         }
 
         public float JumpTakeOffSpeed {
-            get { return playerModel.jumpTakeOffSpeed; }
+            get { return PlayerModel.jumpTakeOffSpeed; }
             set {
-              playerModel.jumpTakeOffSpeed = value;
+              PlayerModel.jumpTakeOffSpeed = value;
+              Control.jumpTakeOffSpeed = value;
             }
         }
+        
+        
+        private void OnZeroHealth() {
+            var ev = Schedule<HealthIsZero>();
+            ev.health = Health;
+        }
 
-        protected override void Update()
+
+        protected void Update()
         {
-            //MIGUEL:
-            health = GetComponent<Health>();
-            audioSource = GetComponent<AudioSource>();
-            collider2d = GetComponent<Collider2D>();
-            spriteRenderer = GetComponent<SpriteRenderer>();
-            animator = GetComponent<Animator>();
-
-            if (controlEnabled)
+            if (ControlEnabled)
             {
                 //MIGUEL:
                 // we do the mobile stuff
@@ -86,39 +124,43 @@ namespace Platformer.Mechanics
                 }
 
                 // update_movement_for_mobile();
-                move.x = Input.GetAxis("Horizontal");
+                Control.move.x = Input.GetAxis("Horizontal");
                 if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
                     jumpState = JumpState.PrepareToJump;
                 else if (Input.GetButtonUp("Jump"))
                 {
-                    stopJump = true;
+                    Control.stopJump = true;
                     Schedule<PlayerStopJump>().player = this;
                 }
             }
             else
             {
-                move.x = 0;
+                Control.move.x = 0;
             }
 
-            // this is where we handle jumps
-            jump = false;
+            UpdateJump();
+        }
+
+        private void UpdateJump()
+        {
+            Control.jump = false;
             switch (jumpState)
             {
                 case JumpState.PrepareToJump:
                     jumpState = JumpState.Jumping;
-                    jump = true;
-                    stopJump = false;
+                    Control.jump = true;
+                    Control.stopJump = false;
                     StartCoroutine(debugjump(jumpState));
                     break;
                 case JumpState.Jumping:
-                    if (!IsGrounded)
+                    if (!Control.IsGrounded)
                     {
                         Schedule<PlayerJumped>().player = this;
                         jumpState = JumpState.InFlight;
                     }
                     break;
                 case JumpState.InFlight:
-                    if (IsGrounded)
+                    if (Control.IsGrounded)
                     {
                         Schedule<PlayerLanded>().player = this;
                         jumpState = JumpState.Landed;
@@ -128,117 +170,13 @@ namespace Platformer.Mechanics
                     jumpState = JumpState.Grounded;
                     break;
             }
-
-            base.Update();
         }
-//MIGUEL:
-        // OLD JUMP CODE
-        // void functionJump()
-        // {
-        //     jump = false;
-        //     switch (jumpState)
-        //     {
-        //         case JumpState.PrepareToJump:
-        //             jumpState = JumpState.Jumping;
-        //             jump = true;
-        //             stopJump = false;
-        //             StartCoroutine(debugjump(jumpState));
-        //             break;
-        //         case JumpState.Jumping:
-        //             if (!IsGrounded)
-        //             {
-        //                 Schedule<PlayerJumped>().player = this;
-        //                 jumpState = JumpState.InFlight;
-        //             }
-        //             break;
-        //         case JumpState.InFlight:
-        //             if (IsGrounded)
-        //             {
-        //                 Schedule<PlayerLanded>().player = this;
-        //                 jumpState = JumpState.Landed;
-        //             }
-        //             break;
-        //         case JumpState.Landed:
-        //             jumpState = JumpState.Grounded;
-        //             break;
-        //     }
-        // }
 
         IEnumerator debugjump(JumpState jumpState)
         {
             Debug.Log("I'm jumping!");
             yield return new WaitForSeconds(4f / 2);
             Debug.Log("I'm done jumping!");
-        }
-
-        protected override void ComputeVelocity()
-        {
-            if (jump && IsGrounded)
-            {
-                velocity.y = JumpTakeOffSpeed * model.jumpModifier;
-                jump = false;
-            }
-            else if (stopJump)
-            {
-                stopJump = false;
-                if (velocity.y > 0)
-                {
-                    velocity.y = velocity.y * model.jumpDeceleration;
-                }
-            }
-
-            if (move.x > 0.01f)
-                spriteRenderer.flipX = false;
-            else if (move.x < -0.01f)
-                spriteRenderer.flipX = true;
-
-            animator.SetBool("grounded", IsGrounded);
-            animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / MaxSpeed);
-
-            targetVelocity = move * MaxSpeed;
-        }
-//MIGUEL:
-        string name1()
-        {
-            string[] possibleNames = new string[] { "Albert", "Robert", "James", "Harry", "David" };
-            int x = Random.Range(1, 9999);
-
-            string enemyName = possibleNames[Random.Range(0, possibleNames.Length)]+x;
-            return enemyName;
-        }
-
-        string like1()
-        {
-            string[] possibleLikes = new string[] { "Apples", "Cheese", "Malmite", "Bacon", "Milk", "Carrots", "Music" };
-
-            string selected = possibleLikes[Random.Range(0, possibleLikes.Length)];
-            return selected;
-        }
-
-        string makedebug()
-        {
-            string debug;
-
-            debug = "";
-            debug += GameConstants.PlayerTypeName;
-            debug += ": ";
-            debug += GameConstants.PlayerNameDeclaration;
-            debug += " ";
-            debug += name1();
-            debug += " ";
-            debug += GameConstants.PlayerLikeDeclaration;
-            debug += " ";
-            debug += like1();
-            debug += " ";
-
-            return debug;
-        }
-
-        IEnumerator debugit()
-        {
-            yield return new WaitForSeconds(Random.Range(2, 10));
-            Debug.Log(makedebug());
-            StartCoroutine(debugit());
         }
 
         public enum JumpState

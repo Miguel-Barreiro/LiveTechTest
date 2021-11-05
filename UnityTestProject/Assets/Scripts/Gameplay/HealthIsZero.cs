@@ -15,6 +15,7 @@ namespace Platformer.Gameplay
 
         public override void Execute()
         {
+
             //we should abstract this in a way we dont 
             Schedule<PlayerDeath>();
         }

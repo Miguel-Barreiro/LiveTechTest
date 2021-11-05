@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Platformer.Core;
+﻿using Platformer.Core;
 using Platformer.Model;
 using UnityEngine;
 
@@ -12,6 +10,7 @@ namespace Platformer.Mechanics
     [RequireComponent(typeof(SpriteRenderer), typeof(Animator))]
     public class AnimationController : KinematicObject
     {
+        
         /// <summary>
         /// Max horizontal speed.
         /// </summary>
@@ -36,21 +35,26 @@ namespace Platformer.Mechanics
         /// </summary>
         public bool stopJump;
 
-        SpriteRenderer spriteRenderer;
-        Animator animator;
-        PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        private SpriteRenderer _spriteRenderer;
+        private Animator _animator;
+        readonly PlatformerModel _model = Simulation.GetModel<PlatformerModel>();
 
-        protected virtual void Awake()
+        
+        public static readonly int GROUNDED_PARAMETER = Animator.StringToHash("grounded");
+        public static readonly int VELOCITY_X_PARAMETER = Animator.StringToHash("velocityX");
+
+        protected override void Awake()
         {
-            spriteRenderer = GetComponent<SpriteRenderer>();
-            animator = GetComponent<Animator>();
+            base.Awake();
+            _spriteRenderer = GetComponent<SpriteRenderer>();
+            _animator = GetComponent<Animator>();
         }
 
         protected override void ComputeVelocity()
         {
             if (jump && IsGrounded)
             {
-                velocity.y = jumpTakeOffSpeed * model.jumpModifier;
+                velocity.y = jumpTakeOffSpeed * _model.jumpModifier;
                 jump = false;
             }
             else if (stopJump)
@@ -58,19 +62,22 @@ namespace Platformer.Mechanics
                 stopJump = false;
                 if (velocity.y > 0)
                 {
-                    velocity.y = velocity.y * model.jumpDeceleration;
+                    velocity.y = velocity.y * _model.jumpDeceleration;
                 }
             }
 
             if (move.x > 0.01f)
-                spriteRenderer.flipX = false;
+                _spriteRenderer.flipX = false;
             else if (move.x < -0.01f)
-                spriteRenderer.flipX = true;
+                _spriteRenderer.flipX = true;
 
-            animator.SetBool("grounded", IsGrounded);
-            animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
-
+            _animator.SetBool(GROUNDED_PARAMETER, IsGrounded);
+            _animator.SetFloat(VELOCITY_X_PARAMETER, Mathf.Abs(velocity.x) / maxSpeed);
+                      
             targetVelocity = move * maxSpeed;
         }
+        
+        
+        
     }
 }

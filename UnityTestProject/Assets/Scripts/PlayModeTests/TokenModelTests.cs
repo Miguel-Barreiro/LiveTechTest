@@ -18,6 +18,6 @@ public class TokenModelTests
         // Act
         
         // Assert
-        Assert.AreEqual(false, tokenModel.collected);
+        Assert.AreEqual(false, tokenModel.Collected(Vector2.zero));
     }
 }

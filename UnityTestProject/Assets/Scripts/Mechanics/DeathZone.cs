@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Platformer.Gameplay;
+﻿using Platformer.Gameplay;
 using UnityEngine;
 using static Platformer.Core.Simulation;
 
@@ -14,8 +12,8 @@ namespace Platformer.Mechanics
     {
         void OnTriggerEnter2D(Collider2D collider)
         {
-            var p = collider.gameObject.GetComponent<PlayerController>();
-            if (p != null)
+            var player = collider.gameObject.GetComponent<PlayerController>();
+            if (player != null)
             {
                 var ev = Schedule<PlayerEnteredDeathZone>();
                 ev.deathzone = this;
