@@ -1,3 +1,4 @@
+using Models;
 using Platformer.Core;
 using Platformer.Mechanics;
 using Platformer.Model;
@@ -14,11 +15,12 @@ namespace Platformer.Gameplay
         public PlayerController player;
         public TokenInstance token;
 
-        PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        public readonly TokenModel tokenModel = Simulation.GetModel<TokenModel>();
 
         public override void Execute()
         {
-             AudioSource.PlayClipAtPoint(token.TokenConfiguration.tokenCollectAudio, token.transform.position);
+            tokenModel.SetCollected(token.transform.position,true);
+            AudioSource.PlayClipAtPoint(token.TokenConfiguration.tokenCollectAudio, token.transform.position);
         }
     }
 }

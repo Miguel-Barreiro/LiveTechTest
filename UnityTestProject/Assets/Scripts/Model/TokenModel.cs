@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
 
 namespace Models
@@ -18,6 +20,10 @@ namespace Models
 
         public void SetCollected(Vector2 tokenPosition, bool collected) {
             _tokensCollected[tokenPosition] = collected;
+        }
+
+        public int GetCollectedTokensNumber() {
+            return _tokensCollected.Count(pair => pair.Value);
         }
     }
 }

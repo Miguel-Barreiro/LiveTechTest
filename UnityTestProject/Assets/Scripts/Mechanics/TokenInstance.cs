@@ -63,8 +63,6 @@ namespace Platformer.Mechanics
         void OnPlayerEnter(PlayerController player)
         {
             if (TokenModel.Collected(transform.position)) return;
- 
-            TokenModel.SetCollected(transform.position,true);
 
             frame = 0;
             sprites = TokenConfiguration.collectedAnimation;
