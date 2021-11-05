@@ -1,9 +1,10 @@
 using System;
+using Platformer.Gameplay;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Platformer.Gameplay
+namespace Platformer.UI
 {
     public class TokenCountUI : MonoBehaviour
     {

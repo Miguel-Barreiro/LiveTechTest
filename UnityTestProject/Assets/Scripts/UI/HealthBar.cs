@@ -1,7 +1,8 @@
+using Platformer.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Platformer.Gameplay
+namespace Platformer.UI
 {
     public class HealthBar : MonoBehaviour
     {
